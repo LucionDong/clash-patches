@@ -1,0 +1,60 @@
+#!name=微博净化[墨鱼版·Surge格式]
+#!desc=由墨鱼 QX 重写 WeiboAds.conf 转换为 Surge 模块格式
+
+[Rule]
+DOMAIN,sdkapp.uve.weibo.com,DIRECT
+DOMAIN,adstrategy.biz.weibo.com,REJECT
+DOMAIN-SUFFIX,api.touch-moblie.com,REJECT
+
+[URL Rewrite]
+^https?:\/\/(preload-click|preload-impression)\.uve\.weibo\.com\/(interface\/wbpullad\/wbpullad_click\.php|wbapplua\/get_wbpullad_log\.lua) - reject
+^https?:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkconfig\.php - reject
+
+[Body Rewrite]
+http-response-jq ^https?:\/\/api\.weibo\.cn\/\d\/ug\/checkin\/stream '.items |= map(select(.category != "card"))'
+
+[Map Local]
+^https?:\/\/api\.weibo\.cn\/\d\/statuses\/container_positive data-type=text data="" status-code=200
+^https?:\/\/api\.weibo\.cn\/\d\/push\/info data-type=text data="" status-code=200
+^https?:\/\/api\.weibo\.cn\/.*account\/recommend_interesttags data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/api\.weibo\.cn\/.*\/media_homelist data-type=text data="" status-code=200
+^https?:\/\/api\.weibo\.cn\/.*finder\/searchbarchange data-type=text data="" status-code=200
+^https?:\/\/api\.weibo\.cn\/\d\/ad\/preload data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/api\.weibo\.cn\/\d\/profile\/recommend_popuser data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/boot.*weibo\.com\/v\d\/ad\/realtime data-type=text data="" status-code=200
+^https?:\/\/api\.weibo\.cn\/.*discovery_home_bottom_getdotinfo data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/m?api\.weibo\.c(n|om)\/\d/push/daily data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/hot\/hours_spotlight data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/api\.weibo\.cn\/\d\/cardlist\?v_f=.*Weibo_intl data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/weibointl\.api\.weibo\.c(n|om)\/portal\.php\?a=hot_search_users data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/ad\/weibointl\? data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+[Script]
+weibo_1 = type=http-response, pattern=^https?:\/\/api\.weibo\.cn\/\d\/statuses\/container_detail, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_2 = type=http-response, pattern=^https?:\/\/api\.weibo\.cn\/\d\/groups\/allgroups\/v\d, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_3 = type=http-response, pattern=^https?:\/\/boot.*weibo\.com\/v\d\/ad\/preload, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_4 = type=http-response, pattern=^https?:\/\/api\.weibo\.cn\/\d\/\w{5}\/(statuses_unread_hot_timeline|timeline), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_5 = type=http-response, pattern=^https?:\/\/api\.weibo\.cn\/\d\/video\/tiny_stream_mid_detail, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_6 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/\w{5}\/cardlist, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_7 = type=http-response, pattern=^https://api.weibo.cn/2/!/client/light_skin, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_8 = type=http-response, pattern=^https://new.vip.weibo.cn/littleskin/preview, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_9 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/(searchall|page\?|0flowpage), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_10 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/statuses/(unread_)?friends(/|_)timeline, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_11 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/groups/timeline, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_12 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/statuses/(container_timeline|unread_hot_timeline|extend|video_mixtimeline|unread_topic_timeline), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_13 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/profile/(me|container_timeline), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_14 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/video/(community_tab|remind_info|tiny_stream_video_list), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_15 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/search/(finder|container_timeline|container_discover), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_16 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/(checkin/show|\!/live/media_homelist|container/get_item), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_17 = type=http-response, pattern=^https?:\/\/m?api\.weibo\.c(n|om)\/\d\/cardlist, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_18 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?a=open_app, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_19 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.c(n|om)\/portal\.php.*a=get_searching_info, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_search_info.json
+weibo_20 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.c(n|om)\/portal\.php.*feed&a=search_topic, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_search_topic.json
+weibo_21 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.c(n|om)\/portal\.php.*get_coopen_ads, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_22 = type=http-response, pattern=^https?://(sdk|wb)app\.uve\.weibo\.com(/interface/sdk/sdkad.php|/wbapplua/wbpullad.lua), requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_23 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.c(n|om)\/portal\.php.*a=trends, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_24 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?a=user_center, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+weibo_25 = type=http-response, pattern=^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?a=search_topic, requires-body=1, max-size=-1, timeout=60, script-path=https://raw.githubusercontent.com/ddgksf2013/Scripts/refs/heads/master/weibo_json.js
+
+[MITM]
+hostname = %APPEND% api.weibo.cn, api.weibo.com, *.api.weibo.cn, *.api.weibo.com, mapi.weibo.cn, mapi.weibo.com, *.uve.weibo.com, new.vip.weibo.cn, boot.biz.weibo.com

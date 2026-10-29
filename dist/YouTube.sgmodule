@@ -1,0 +1,19 @@
+#!name=YouTube去广告[墨鱼规则移植]
+#!desc=googlevideo 按网址拦截，不跑脚本；youtubei / youtubei-att 用 Maasea 响应脚本
+
+[URL Rewrite]
+# [^d] 排除 /dclk_video_ads，替代 Go 正则不支持的 (?!...)
+(^https?:\/\/[\w-]+\.googlevideo\.com\/[^d].+?)&ctier=L(&.+?),ctier,(.+) $1$2$3 302
+
+[Map Local]
+# [^dv] 排除 /dclk_video_ads 与 /videoplayback
+^https?:\/\/[\w-]+\.googlevideo\.com\/[^dv].+&oad data-type=text data="" status-code=200
+^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads data-type=text data="" status-code=200
+^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking) data-type=text data="" status-code=200
+^https?:\/\/s\.youtube\.com\/api\/stats\/qoe\?adcontext data-type=text data="" status-code=200
+
+[Script]
+youtube.response = type=http-response,pattern=^https:\/\/youtubei(-att)?\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch),requires-body=1,max-size=-1,binary-body-mode=1,timeout=30,script-path=https://raw.githubusercontent.com/Maasea/sgmodule/master/Script/Youtube/youtube.response.js,argument="{"captionLang":"off","blockUpload":true,"blockImmersive":true,"blockShorts":false,"debug":false}"
+
+[MITM]
+hostname = %APPEND% *.googlevideo.com, www.youtube.com, s.youtube.com, youtubei.googleapis.com, youtubei-att.googleapis.com

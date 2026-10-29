@@ -1,0 +1,44 @@
+name: build
+
+on:
+  schedule:
+    - cron: "0 20 * * *"   # 每天北京时间 04:00
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - apps.txt
+      - build.sh
+      - scripts/**
+      - static/**
+      - .github/workflows/build.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 生成模块
+        run: bash build.sh || echo "BUILD_FAILED=1" >> "$GITHUB_ENV"
+
+      - name: 提交变化
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          if git diff --cached --quiet; then
+            echo "产物无变化"
+          else
+            git commit -m "build: 更新生成的模块"
+            git push
+          fi
+
+      - name: 报告失败
+        if: env.BUILD_FAILED == '1'
+        run: |
+          echo "有目标构建失败，详见“生成模块”步骤日志；失败的目标保留了上一次的产物"
+          exit 1

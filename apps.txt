@@ -1,0 +1,12 @@
+# 合并进 MyAdBlock.sgmodule 的 App，来源 fmz200/wool_scripts/Surge/module/split/
+# 一行一个，格式 partX/模块名；查找可用名称：https://github.com/fmz200/wool_scripts/tree/main/Surge/module/split
+partT/Taobao
+partJ/JD.com
+partX/XianYu
+partZ/Zhihu
+partX/Xiaohongshu
+partG/AutoNavi
+partW/NetEaseCloudMusic
+partC/CaiYunWeather
+partB/BaiduNetdisk
+partZ/ZhangShangLOL

@@ -1,8 +1,8 @@
 #!name=B站开屏补丁
-#!desc=直接返回空开屏列表，不依赖脚本
+#!desc=直接返回空开屏列表，并用空 keep_ids 让客户端清掉已缓存的开屏素材，不依赖脚本
 
 [Map Local]
-^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/(list|brand\/list|event\/list2) data-type=base64 data="eyJjb2RlIjowLCJtZXNzYWdlIjoiMCIsInR0bCI6MSwiZGF0YSI6eyJtYXhfdGltZSI6MCwibWluX2ludGVydmFsIjozMTUzNjAwMCwicHVsbF9pbnRlcnZhbCI6MzE1MzYwMDAsImxpc3QiOltdLCJzaG93IjpbXX19" status-code=200 header="Content-Type:application/json"
+^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/(list|brand\/list|event\/list2) data-type=base64 data="eyJjb2RlIjowLCJtZXNzYWdlIjoiMCIsInR0bCI6MSwiZGF0YSI6eyJtYXhfdGltZSI6MCwibWluX2ludGVydmFsIjozMTUzNjAwMCwicHVsbF9pbnRlcnZhbCI6MzE1MzYwMDAsImxpc3QiOltdLCJzaG93IjpbXSwia2VlcF9pZHMiOltdfX0=" status-code=200 header="Content-Type:application/json"
 ^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/show data-type=base64 data="eyJjb2RlIjowLCJtZXNzYWdlIjoiMCIsInR0bCI6MSwiZGF0YSI6eyJzaG93IjpbXX19" status-code=200 header="Content-Type:application/json"
 
 [MITM]

@@ -4,7 +4,9 @@
 1. 脚本前拼接 TextDecoder/TextEncoder polyfill（宿主已有时不生效）；
 2. gRPC 解压在 $utils 不可用时退回脚本内置 pako（Clash 下横幅等 gRPC 接口失效的根因）；
 3. 模块参数写死、去掉 engine=webview、删除评论区脚本（评论区加载慢）；
-4. 模块 script-path 指向本仓库 dist/ 下的修补版脚本。
+4. 模块 script-path 指向本仓库 dist/ 下的修补版脚本；
+5. 去掉响应脚本对 splash/ 开屏接口的匹配，交给 BiliSplash.sgmodule 独占
+   （Clash.md 同一请求只跑第一个匹配的脚本，Biliverse 只删排期，清不掉客户端已缓存的开屏素材）。
 
 用法: patch_biliverse.py <dist目录> <raw地址前缀>
 """
@@ -65,6 +67,11 @@ text, n = re.subn(rf"{re.escape(REL)}/download/v[^/]+/(request|response)\.bundle
                   lambda m: f"{raw_base}/biliverse/ADBlock_{m.group(1)}.bundle.js", text)
 if n == 0:
     sys.exit("模块里没有找到 Biliverse 脚本地址，上游写法变了，需人工检查")
+text, ns = re.subn(r"splash\\/\([^()]*\)\|", "", text)
+leftover = [l for l in text.splitlines() if "type=http-" in l and "splash" in l]
+if leftover:
+    sys.exit("Biliverse 脚本规则里仍匹配 splash，上游写法变了，需人工检查：\n" + "\n".join(leftover))
+print(f"Biliverse ADBlock v{version}: 去掉 splash 匹配 {ns} 处")
 text = text.replace("#!name = B站去广告[Clash版]", f"#!name = B站去广告[Clash版]\n#!version = {version}", 1)
 open(out, "w", encoding="utf-8").write(text)
 print(f"Biliverse ADBlock v{version}: 替换脚本地址 {n} 处")

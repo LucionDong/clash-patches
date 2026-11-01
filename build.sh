@@ -43,7 +43,7 @@ biliverse() {
 }
 
 static_modules() {
-  cp static/*.sgmodule "$DIST/"
+  cp static/*.sgmodule static/*.js "$DIST/"
 }
 
 build "合并去广告模块" merge_apps

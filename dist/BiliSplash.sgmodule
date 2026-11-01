@@ -5,7 +5,7 @@
 ^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/show data-type=base64 data="eyJjb2RlIjowLCJtZXNzYWdlIjoiMCIsInR0bCI6MSwiZGF0YSI6eyJzaG93IjpbXX19" status-code=200 header="Content-Type:application/json"
 
 [Script]
-B站开屏置为过期 = type=http-response, pattern=^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/(list|brand\/list|event\/list2), requires-body=1, max-size=1048576, script-path=https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/BiliSplash.js
+B站开屏置为过期 = type=http-response, pattern=^https?:\/\/app\.bili(bili\.com|api\.(net|com))\/x\/v2\/splash\/(list|brand\/list|event\/list2), requires-body=1, max-size=16777216, script-path=https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/BiliSplash.js
 
 [MITM]
 hostname = %APPEND% app.bilibili.com, app.biliapi.net, app.biliapi.com

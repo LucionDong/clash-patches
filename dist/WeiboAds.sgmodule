@@ -2,6 +2,8 @@
 #!desc=由墨鱼 QX 重写 WeiboAds.conf 转换为 Surge 模块格式
 
 [Rule]
+DOMAIN,bootpreload.uve.weibo.com,DIRECT
+DOMAIN,wbapp.uve.weibo.com,DIRECT
 DOMAIN,sdkapp.uve.weibo.com,DIRECT
 DOMAIN,adstrategy.biz.weibo.com,REJECT
 DOMAIN-SUFFIX,api.touch-moblie.com,REJECT

@@ -42,6 +42,10 @@ biliverse() {
     && cp "$TMP/bili/biliverse/"*.bundle.js "$DIST/biliverse/"
 }
 
+youtube() {
+  python3 -I scripts/patch_youtube.py "$DIST"
+}
+
 static_modules() {
   cp static/*.sgmodule static/*.js "$DIST/"
 }
@@ -60,6 +64,7 @@ script_pass() {
 build "合并去广告模块" merge_apps
 build "微博" weibo
 build "B站去广告" biliverse
+build "YouTube 脚本" youtube
 build "静态模块" static_modules
 build "放行被 anti-AD 拒绝的脚本接口" script_pass
 

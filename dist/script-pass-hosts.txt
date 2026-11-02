@@ -1,0 +1,4 @@
+# 模块	放行的域名	对应的响应改写 pattern（域名部分）
+WeiboAds.sgmodule	boot.biz.weibo.com	boot.*weibo\.com
+WeiboAds.sgmodule	bootpreload.uve.weibo.com	boot.*weibo\.com
+WeiboAds.sgmodule	wbapp.uve.weibo.com	(sdk|wb)app\.uve\.weibo\.com

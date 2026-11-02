@@ -27,19 +27,10 @@ merge_apps() {
     && cp "$TMP/MyAdBlock.sgmodule" "$DIST/"
 }
 
-# 开屏接口由 weibo_json.js 把素材改成过期，响应必须到达 App 才能刷新本地缓存；
-# 这两个域名在 anti-AD 里，配置的 RULE-SET,anti_ad,REJECT 会让脚本永远不运行，这里用模块规则放行
-WEIBO_PASS_DOMAINS="bootpreload.uve.weibo.com wbapp.uve.weibo.com"
-
 weibo() {
   curl -fsSL --retry 3 -o "$TMP/WeiboAds.conf" \
       https://raw.githubusercontent.com/ddgksf2013/Rewrite/master/AdBlock/WeiboAds.conf \
-    && python3 -I scripts/qxrw2sgmodule.py "$TMP/WeiboAds.conf" "$TMP/WeiboAds.raw.sgmodule" '微博净化[墨鱼版·Surge格式]' \
-    && awk -v domains="$WEIBO_PASS_DOMAINS" '
-         { print }
-         $0 == "[Rule]" { n = split(domains, d, " "); for (i = 1; i <= n; i++) print "DOMAIN," d[i] ",DIRECT"; found = 1 }
-         END { if (!found) { print "WeiboAds 缺少 [Rule] 段，无法放行开屏接口" > "/dev/stderr"; exit 1 } }
-       ' "$TMP/WeiboAds.raw.sgmodule" > "$TMP/WeiboAds.sgmodule" \
+    && python3 -I scripts/qxrw2sgmodule.py "$TMP/WeiboAds.conf" "$TMP/WeiboAds.sgmodule" '微博净化[墨鱼版·Surge格式]' \
     && cp "$TMP/WeiboAds.sgmodule" "$DIST/"
 }
 
@@ -55,10 +46,18 @@ static_modules() {
   cp static/*.sgmodule static/*.js "$DIST/"
 }
 
+# 开屏等接口靠响应脚本把广告改成过期，App 才会刷新本地缓存；配置里的 anti-AD 会拒绝其中一些域名，
+# 脚本就永远不运行。这里给每个模块补上放行规则（配置用的 mihomo.mrs 与 clash.yaml 同源同版本）
+script_pass() {
+  curl -fsSL --retry 3 -o "$TMP/anti-ad.yaml" https://anti-ad.net/clash.yaml || : > "$TMP/anti-ad.yaml"
+  python3 -I scripts/pass_script_hosts.py "$TMP/anti-ad.yaml" "$DIST/script-pass-hosts.txt" "$DIST"/*.sgmodule
+}
+
 build "合并去广告模块" merge_apps
 build "微博" weibo
 build "B站去广告" biliverse
 build "静态模块" static_modules
+build "放行被 anti-AD 拒绝的脚本接口" script_pass
 
 if ((${#failed[@]})); then
   echo "失败的目标: ${failed[*]}"

@@ -2,8 +2,11 @@
 #!desc=由墨鱼 QX 重写 WeiboAds.conf 转换为 Surge 模块格式
 
 [Rule]
+# >>> 自动放行：响应脚本要改写、会被 anti-AD 拒绝的域名（scripts/pass_script_hosts.py 生成）
+DOMAIN,boot.biz.weibo.com,DIRECT
 DOMAIN,bootpreload.uve.weibo.com,DIRECT
 DOMAIN,wbapp.uve.weibo.com,DIRECT
+# <<< 自动放行
 DOMAIN,sdkapp.uve.weibo.com,DIRECT
 DOMAIN,adstrategy.biz.weibo.com,REJECT
 DOMAIN-SUFFIX,api.touch-moblie.com,REJECT

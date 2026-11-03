@@ -6,10 +6,12 @@
 3. 模块参数写死、去掉 engine=webview、删除评论区脚本（评论区加载慢）；
 4. 模块 script-path 指向本仓库 dist/ 下的修补版脚本；
 5. 去掉响应脚本对 splash/ 开屏接口的匹配，交给 BiliSplash.sgmodule 独占
-   （Clash.md 同一请求只跑第一个匹配的脚本，Biliverse 只删排期，清不掉客户端已缓存的开屏素材）。
+   （Clash.md 同一请求只跑第一个匹配的脚本，Biliverse 只删排期，清不掉客户端已缓存的开屏素材）；
+6. cm.bilibili.com 广告上报不再走隐私脚本，改为 Map Local 本地返回成功（避免被拒后 App 不停重试）。
 
 用法: patch_biliverse.py <dist目录> <raw地址前缀>
 """
+import base64
 import os
 import re
 import subprocess
@@ -72,6 +74,21 @@ leftover = [l for l in text.splitlines() if "type=http-" in l and "splash" in l]
 if leftover:
     sys.exit("Biliverse 脚本规则里仍匹配 splash，上游写法变了，需人工检查：\n" + "\n".join(leftover))
 print(f"Biliverse ADBlock v{version}: 去掉 splash 匹配 {ns} 处")
+
+# cm.bilibili.com 广告上报改为本地返回成功：配置里该域名是 REJECT，隐私脚本改完请求仍被拒，
+# App 拿不到响应会不停重试（每次都要解密 + 跑脚本），一分钟几百次，把 Clash 内存冲高，
+# 导致 YouTube 等脚本因内存不足被跳过（日志 2026-11-03）
+CM = r"cm\.bilibili\.com\/cm\/api\/(conversion\/mobile\/v2|fees\/wise)"
+text, nc = re.subn(re.escape(CM) + r"\|", "", text)
+if nc != 1:
+    sys.exit(f"隐私脚本的 cm.bilibili.com 匹配找到 {nc} 处（应为 1），上游写法变了，需人工检查")
+ok = base64.b64encode(b'{"code":0,"message":"0","ttl":1}').decode()
+mock = (f"# cm.bilibili.com 广告上报：本地直接返回成功，App 不再重试\n"
+        f'^https?:\\/\\/{CM} data-type=base64 data="{ok}" status-code=200 header="Content-Type:application/json"\n')
+text, nm = re.subn(r"^\[Map Local\]\n", lambda m: m.group(0) + mock, text, count=1, flags=re.M)
+if nm != 1:
+    sys.exit("模块里没有 [Map Local] 段，上游写法变了，需人工检查")
+print(f"Biliverse ADBlock v{version}: cm.bilibili.com 上报改为本地应答")
 text = text.replace("#!name = B站去广告[Clash版]", f"#!name = B站去广告[Clash版]\n#!version = {version}", 1)
 open(out, "w", encoding="utf-8").write(text)
 print(f"Biliverse ADBlock v{version}: 替换脚本地址 {n} 处")

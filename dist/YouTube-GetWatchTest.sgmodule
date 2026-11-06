@@ -1,0 +1,12 @@
+#!name=YouTube get_watch 回退实验
+#!desc=实验：get_watch 本地返回 404，看 App 是否改走 player + next（响应小，脚本不易因内存不足被跳过）。需与「YouTube去广告」模块同时启用；视频无法播放时关闭本模块
+
+# 背景：约 1 MB 的 get_watch 响应，脚本处理要预估 15–23 MiB，iOS 网络扩展只有约 50 MiB，
+# 内存紧张时整段被跳过，片头广告漏出。initplayback 被拦后 App 会退回 get_watch，
+# 这里再拦 get_watch，验证 App 会不会继续退回 player + next。
+
+[Map Local]
+^https:\/\/youtubei(-att)?\.googleapis\.com\/youtubei\/v1\/get_watch data-type=text data="" status-code=404
+
+[MITM]
+hostname = %APPEND% youtubei.googleapis.com, youtubei-att.googleapis.com

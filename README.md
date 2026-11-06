@@ -9,6 +9,7 @@
 | B站去广告 | `https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/BiliADBlock.sgmodule` | Biliverse/ADBlock 最新版，脚本经修补（见 `scripts/patch_biliverse.py`） |
 | B站开屏补丁 | `https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/BiliSplash.sgmodule` | 手写（`static/`） |
 | YouTube | `https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/YouTube.sgmodule` | 墨鱼规则移植（`static/`）+ Maasea 响应脚本修补版（`scripts/patch_youtube.py`：首页赞助卡片预过滤、广告判断不再缓存） |
+| YouTube get_watch 回退实验 | `https://raw.githubusercontent.com/LucionDong/clash-patches/main/dist/YouTube-GetWatchTest.sgmodule` | 手写（`static/`），实验用：get_watch 本地返回 404，看 App 是否改走 player + next；须与 YouTube 模块同时启用，播放异常就关掉 |
 
 - 加 App：在 `apps.txt` 加一行 `partX/模块名`（名称见 fmz200/wool_scripts 的 `Surge/module/split/`），推送后自动重建。
 - 手动重建：Actions → build → Run workflow。

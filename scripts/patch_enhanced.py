@@ -6,7 +6,9 @@ ReferenceError: Can't find variable: TextDecoder，底栏、顶栏、我的页�
 改动：
 1. request/response 脚本前拼接 TextDecoder/TextEncoder polyfill（宿主已有时不生效）；
 2. gRPC 解压在 $utils 不可用时退回脚本内置 pako（同 patch_biliverse.py）；
-3. 模块 script-path 指向本仓库 dist/biliverse/ 下的修补版脚本；config 脚本与设置面板不用 TextDecoder，保持官方地址。
+3. 模块 script-path 指向本仓库 dist/biliverse/ 下的修补版脚本；config 脚本与设置面板不用 TextDecoder，保持官方地址；
+4. 首页标签与底栏写进 tab/v2 脚本的参数：设置面板要在 B站 App 的 WebView 里运行，
+   而 App 内入口 app.bilibili.com/settings/ 在小火箭里 Map Local 返回空，面板用不了（日志 2026-11-10）。
 
 用法: patch_enhanced.py <dist目录> <raw地址前缀>
 """
@@ -36,6 +38,8 @@ module = fetch(f"{REL}/latest/download/Biliverse.Enhanced.srmodule")
 version = re.search(r"^#!version\s*=\s*(\S+)", module, re.M).group(1)
 polyfill = open(os.path.join(here, "textcodec_polyfill.js"), encoding="utf-8").read()
 UNGZIP = re.compile(r"return \$utils\.ungzip\((\w+)\);default:return (\w+)\.ungzip\(\1\)")
+# 首页标签 2037 推荐、780 热门、545 追番，默认停在推荐；底栏 首页、动态、我的（id 见脚本内 RegionList 与 Tab.bottom）
+TAB_ARGUMENT = 'Home.Tab="2037,780,545"&Home.Tab_default="2037"&Bottom="home,dynamic,mine"'
 
 os.makedirs(os.path.join(dist, "biliverse"), exist_ok=True)
 for kind in ("request", "response"):
@@ -59,9 +63,13 @@ text, n = re.subn(rf"{re.escape(REL)}/download/v[^/]+/(request|response)\.bundle
                   lambda m: f"{raw_base}/biliverse/Enhanced_{m.group(1)}.bundle.js", module)
 if n == 0:
     sys.exit("模块里没有找到 Enhanced 脚本地址，上游写法变了，需人工检查")
+text, na = re.subn(r"^(Biliverse\.Enhanced\.x\.resource\.show\.tab\.v2 = .*, argument=)$",
+                   lambda m: m.group(1) + TAB_ARGUMENT, text, flags=re.M)
+if na != 1:
+    sys.exit(f"tab/v2 脚本行（参数为空）找到 {na} 处（应为 1），上游写法变了，需人工检查")
 text, nn = re.subn(r"^(#!name\s*=\s*.+)$", r"\1[TextDecoder 修补版]", text, count=1, flags=re.M)
 if nn != 1:
     sys.exit("模块里没有 #!name，上游写法变了，需人工检查")
 with open(os.path.join(dist, "BiliEnhanced.srmodule"), "w", encoding="utf-8") as f:
     f.write(text)
-print(f"Biliverse Enhanced v{version}: 替换脚本地址 {n} 处")
+print(f"Biliverse Enhanced v{version}: 替换脚本地址 {n} 处，写入首页标签与底栏参数")

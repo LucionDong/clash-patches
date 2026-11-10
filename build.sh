@@ -42,6 +42,15 @@ biliverse() {
     && cp "$TMP/bili/biliverse/"*.bundle.js "$DIST/biliverse/"
 }
 
+# 小火箭没有 TextDecoder，官方 Enhanced 脚本一运行就报错；产物是小火箭模块（.srmodule）
+enhanced() {
+  mkdir -p "$TMP/enh" \
+    && python3 -I scripts/patch_enhanced.py "$TMP/enh" "$RAW_BASE" \
+    && mkdir -p "$DIST/biliverse" \
+    && cp "$TMP/enh/BiliEnhanced.srmodule" "$DIST/" \
+    && cp "$TMP/enh/biliverse/"*.bundle.js "$DIST/biliverse/"
+}
+
 youtube() {
   python3 -I scripts/patch_youtube.py "$DIST"
 }
@@ -64,6 +73,7 @@ script_pass() {
 build "合并去广告模块" merge_apps
 build "微博" weibo
 build "B站去广告" biliverse
+build "B站界面增强" enhanced
 build "YouTube 脚本" youtube
 build "静态模块" static_modules
 build "放行被 anti-AD 拒绝的脚本接口" script_pass

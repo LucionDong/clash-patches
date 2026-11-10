@@ -39,7 +39,8 @@ version = re.search(r"^#!version\s*=\s*(\S+)", module, re.M).group(1)
 polyfill = open(os.path.join(here, "textcodec_polyfill.js"), encoding="utf-8").read()
 UNGZIP = re.compile(r"return \$utils\.ungzip\((\w+)\);default:return (\w+)\.ungzip\(\1\)")
 # 首页标签 2037 推荐、780 热门、545 追番，默认停在推荐；底栏 首页、动态、我的（id 见脚本内 RegionList 与 Tab.bottom）
-TAB_ARGUMENT = 'Home.Tab="2037,780,545"&Home.Tab_default="2037"&Bottom="home,dynamic,mine"'
+# 逗号写成 %2C：小火箭按逗号切分脚本行，参数在第一个逗号处被截断（日志 2026-11-10 18:07）；脚本解析参数时会先 URL 解码
+TAB_ARGUMENT = 'Home.Tab="2037%2C780%2C545"&Home.Tab_default="2037"&Bottom="home%2Cdynamic%2Cmine"'
 
 os.makedirs(os.path.join(dist, "biliverse"), exist_ok=True)
 for kind in ("request", "response"):
